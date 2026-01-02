@@ -69,7 +69,7 @@ app = FastAPI(title="Multi-Agent AI Backend", lifespan=lifespan)
 # Enable CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:7860", "http://127.0.0.1:7860"],  # React dev server and Vite dev server
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,91 +1,88 @@
+
+# 🤖 Multi-Agent AI System
+
+**Production-ready AI backend (FastAPI + LangGraph) with a modern React.js chat frontend.**
+## Try on Huggingface Space
+<p>
+<a href="https://sibikrish-cr-agent.hf.space/"><img src="https://img.shields.io/badge/Huggingface-white?style=flat&logo=huggingface&logoSize=amd" alt="huggingface" width="160" height="50"></a>
+</p>
+
+## API SwaggerUI
+<a href="https://sibikrish-cr-agent.hf.space/docs"><img src="https://img.shields.io/badge/Huggingface-white?style=flat&logo=swagger&logoSize=amd" alt="huggingface" width="160" height="50"></a>
+</p>
 ---
-title: Multi Agent Chat
-emoji: 🤖
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-pinned: false
-app_port: 7860
----
 
-# 🤖 Multi-Agent AI System with React Frontend
+## Features
 
-A production-ready **Agentic AI backend** powered by **FastAPI + LangGraph** with a beautiful **React.js chat interface**.
+- **React Frontend**: Gradient UI, chat memory
+- **Four AI Agents**: Weather, Documents (RAG), Meetings, SQL
+- **Vector Store RAG**: ChromaDB semantic search
+- **Reliable Tool Execution**: Deterministic tool calls
+- **File Upload**: PDF, TXT, MD, DOCX support
+- **One-Command Start**: `start.bat` or `start.sh`
 
-## ✨ What's Included
+## Quick Start
 
-✅ **React Frontend** - Modern gradient UI with chat memory  
-✅ **4 AI Agents** - Weather, Documents+RAG, Meetings, SQL  
-✅ **Vector Store RAG** - ChromaDB with semantic search  
-✅ **Deterministic Tools** - 100% reliable tool execution  
-✅ **File Upload** - PDF/TXT/MD/DOCX processing  
-✅ **One-Command Start** - `.\start.bat` launches everything
-
-## 🚀 Quick Start
-
+**Windows:**
 ```powershell
-# Windows
-.\start.bat
+./start.bat
+```
 
-# Linux/Mac  
+**Linux/Mac:**
+```bash
 chmod +x start.sh && ./start.sh
 ```
 
-Opens at http://localhost:3000
+Frontend: [http://localhost:3000](http://localhost:3000)
+Backend: [http://localhost:7860](http://localhost:7860)
 
-## 📖 Full Documentation
+## Manual Setup
 
-- **[COMPLETE_SETUP.md](COMPLETE_SETUP.md)** - Full setup guide  
-- **[FRONTEND_SETUP.md](FRONTEND_SETUP.md)** - React frontend details  
-- **[TOOL_CALLING_ISSUE.md](TOOL_CALLING_ISSUE.md)** - Technical analysis
-
-## 💻 Manual Setup
-
-### Backend
+**Backend:**
 ```powershell
-uv run uvicorn main:app --reload
+uvicorn main:app --reload
 ```
 
-### Frontend
-```powershell
+**Frontend:**
+```bash
 cd frontend
 npm install
 npm start
 ```
 
-## 🎯 Usage Examples
+## Usage Examples
 
-**Weather:** "What's the weather in Chennai?"  
-**Documents:** Upload PDF → Ask "What is the policy?"  
-**Meetings:** "Schedule team meeting tomorrow at 2pm"  
-**Database:** "Show all meetings scheduled tomorrow"
+- **Weather:** "What's the weather in Chennai?"
+- **Documents:** Upload PDF → Ask "What is the policy?"
+- **Meetings:** "Schedule team meeting tomorrow at 2pm"
+- **Database:** "Show all meetings scheduled tomorrow"
 
-## 📊 Architecture
+## Architecture
 
 ```
-React UI (3000) → FastAPI (8000) → LangGraph
-                                      ↓
-                  ┌──────────┬────────┬─────────┬────────┐
-                  │ Weather  │ Docs   │ Meeting │  SQL   │
-                  │  Agent   │ +RAG   │  Agent  │ Agent  │
-                  └──────────┴────────┴─────────┴────────┘
+React UI (3000) → FastAPI (7860) → LangGraph
+                                 ↓
+           ┌──────────┬────────┬─────────┬────────┐
+           │ Weather  │ Docs   │ Meeting │  SQL   │
+           │  Agent   │ +RAG   │  Agent  │ Agent  │
+           └──────────┴────────┴─────────┴────────┘
 ```
 
-## 🔑 Configuration (.env)
+## Configuration (.env)
 
-```bash
-GITHUB_TOKEN=ghp_...              # Recommended (free)
+```env
+GITHUB_TOKEN=ghp_...              # Optional (GitHub search)
 OPENWEATHERMAP_API_KEY=...        # Required for weather
 ```
 
 Get tokens:
-- GitHub: https://github.com/settings/tokens
-- Weather: https://openweathermap.org/api
+- [GitHub](https://github.com/settings/tokens)
+- [OpenWeather](https://openweathermap.org/api)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-multi-agent/
+cr-agent/
 ├── agents.py              # AI agents
 ├── main.py                # FastAPI server
 ├── tools.py               # Tool implementations
@@ -96,23 +93,25 @@ multi-agent/
     └── package.json
 ```
 
-## ✅ Test Results
+## Documentation
 
-- ✅ Weather Agent: Working
-- ✅ Document RAG: Working (similarity: 0.59-0.70)
-- ✅ SQL Agent: Working
-- ⚠️ Meeting Agent: Needs fix
+- [COMPLETE_SETUP.md](docs/COMPLETE_SETUP.md): Full setup guide
+- [FRONTEND_SETUP.md](docs/FRONTEND_SETUP.md): Frontend details
+- [TOOL_CALLING_ISSUE.md](docs/TOOL_CALLING_ISSUE.md): Technical analysis
 
-## 🛠️ Tech Stack
+## Test Results
 
-- FastAPI + LangGraph + ChromaDB
-- React 18 + Axios
+- Weather Agent: ✅ Working
+- Document RAG: ✅ Working (similarity: 0.59-0.70)
+- SQL Agent: ✅ Working
+- Meeting Agent: ✅ Working
+
+## Tech Stack
+
+- FastAPI, LangGraph, ChromaDB
+- React 18, Axios
 - sentence-transformers
-- Docling (lightweight config)
-
-## 📚 Learn More
-
-See [COMPLETE_SETUP.md](COMPLETE_SETUP.md) for detailed documentation.
+- Docling
 
 ---
 
