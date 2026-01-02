@@ -25,6 +25,8 @@ import './App.css';
 import StorageManager from './components/StorageManager'; // Import StorageManager
 
 function App() {
+   // Use environment variable for backend URL, default to http://localhost:7860
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:7860';
   const [sessions, setSessions] = useState(() => {
     const saved = localStorage.getItem('chat_sessions');
     return saved ? JSON.parse(saved) : [];
@@ -124,7 +126,7 @@ function App() {
 
     try {
       setIsLoading(true);
-      const response = await axios.post('http://0.0.0.0:7860/upload', formData, {
+      const response = await axios.post(`${BACKEND_URL}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
@@ -174,7 +176,7 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://0.0.0.0:7860/chat', {
+      const response = await axios.post(`${BACKEND_URL}/chat`, {
         query: userMessage,
         file_path: uploadedFile?.path || null
       });

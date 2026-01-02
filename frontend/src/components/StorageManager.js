@@ -7,10 +7,14 @@ const StorageManager = () => {
   const [cleanupAge, setCleanupAge] = useState(24);
   const [message, setMessage] = useState('');
 
+
+  // Use environment variable for backend URL, default to http://localhost:7860
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:7860';
+
   const fetchStorageInfo = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://0.0.0.0:7860/storage/info');
+      const response = await axios.get(`${BACKEND_URL}/storage/info`);
       setStorageInfo(response.data);
       setMessage('');
     } catch (error) {
@@ -24,7 +28,7 @@ const StorageManager = () => {
   const handleCleanup = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`http://0.0.0.0:7860/storage/cleanup?max_age_hours=${cleanupAge}`);
+      const response = await axios.post(`${BACKEND_URL}/storage/cleanup?max_age_hours=${cleanupAge}`);
       setMessage(response.data.message);
       fetchStorageInfo(); // Refresh info after cleanup
     } catch (error) {
