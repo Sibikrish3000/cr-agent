@@ -69,7 +69,7 @@ app = FastAPI(title="Multi-Agent AI Backend", lifespan=lifespan)
 # Enable CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:7860", "http://127.0.0.1:7860"],  # React dev server and Vite dev server
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:7860", "http://127.0.0.1:7860","http://0.0.0.0:7860"],  # React dev server and Vite dev server
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -250,4 +250,4 @@ if frontend_path.exists():
 # CLI entry point for testing
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=7860,log_level="debug")
