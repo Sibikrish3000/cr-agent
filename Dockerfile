@@ -4,7 +4,7 @@ WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm install
 COPY frontend/ ./
-ENV REACT_APP_BACKEND_URL=http://0.0.0.0:7860
+ENV REACT_APP_BACKEND_URL=https://sibikrish-cr-agent.hf.space
 RUN npm run build
 
 # Stage 2: Setup Backend
