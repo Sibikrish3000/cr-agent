@@ -10,7 +10,7 @@ const StorageManager = () => {
   const fetchStorageInfo = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8000/storage/info');
+      const response = await axios.get('http://localhost:7860/storage/info');
       setStorageInfo(response.data);
       setMessage('');
     } catch (error) {
@@ -24,7 +24,7 @@ const StorageManager = () => {
   const handleCleanup = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`http://localhost:8000/storage/cleanup?max_age_hours=${cleanupAge}`);
+      const response = await axios.post(`http://localhost:7860/storage/cleanup?max_age_hours=${cleanupAge}`);
       setMessage(response.data.message);
       fetchStorageInfo(); // Refresh info after cleanup
     } catch (error) {

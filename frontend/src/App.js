@@ -124,7 +124,7 @@ function App() {
 
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:8000/upload', formData, {
+      const response = await axios.post('http://localhost:7860/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
@@ -174,7 +174,7 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8000/chat', {
+      const response = await axios.post('http://localhost:7860/chat', {
         query: userMessage,
         file_path: uploadedFile?.path || null
       });
