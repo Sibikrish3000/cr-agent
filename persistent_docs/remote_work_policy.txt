@@ -1,0 +1,31 @@
+
+    Company Policy: Remote Work Guidelines
+    
+    Overview:
+    Our company supports flexible remote work arrangements for all employees.
+    
+    Eligibility:
+    - All full-time employees are eligible for remote work
+    - Part-time employees must have manager approval
+    - New hires must complete 3 months probation before remote work eligibility
+    
+    Equipment:
+    - Company provides laptop and monitor for remote work
+    - Employees receive $500 annual stipend for home office setup
+    - VPN access is mandatory for all remote connections
+    
+    Work Hours:
+    - Core hours: 10 AM - 3 PM local time (must be available)
+    - Flexible scheduling outside core hours
+    - Minimum 40 hours per week required for full-time employees
+    
+    Communication:
+    - Daily standup at 10 AM via video call
+    - Slack response time: within 1 hour during core hours
+    - Weekly team meeting on Fridays at 2 PM
+    
+    Performance Evaluation:
+    - Remote employees evaluated on deliverables, not hours
+    - Monthly 1-on-1 with manager required
+    - Quarterly performance reviews
+    

@@ -1,0 +1,29 @@
+[project]
+name = "rc-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]",
+    "uvicorn",
+    "python-multipart",
+    "langgraph>=0.2.0",
+    "langchain~=0.3.0",
+    "langchain-community~=0.3.0",
+    "langchain-core~=0.3.0",
+    "langchain-openai~=0.3.0",
+    "langchain-google-genai~=2.0.0",
+    "langchain-ollama",
+    "sqlmodel",
+    "python-dotenv",
+    "requests",
+    "docling",
+    "duckduckgo-search",
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.2.0",
+    "reportlab>=4.0.0",
+    "huggingface-hub[hf-xet]>=0.36.0",
+    "ddgs>=9.10.0",
+    "langchain-huggingface>=0.3.1",
+]
