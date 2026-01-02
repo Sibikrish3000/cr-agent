@@ -1,4 +1,12 @@
-
+---
+title: Multi Agent Chat
+emoji: 🤖
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+app_port: 7860
+---
 # 🤖 Multi-Agent AI System
 
 **Production-ready AI backend (FastAPI + LangGraph) with a modern React.js chat frontend.**
