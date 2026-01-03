@@ -14,7 +14,7 @@ def get_llm(temperature=0):
     openai_key = os.getenv("OPENAI_API_KEY")
     google_key = os.getenv("GOOGLE_API_KEY")
     ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    ollama_model = os.getenv("OLLAMA_MODEL", "qwen3:0.6b")
+    ollama_model = os.getenv("OLLAMA_MODEL", "llama3.2:3b-instruct-q6_K")
     
     # Check for placeholder strings
     is_openai_valid = openai_key and "your_openai_api_key" not in openai_key and len(openai_key) > 20
@@ -22,16 +22,16 @@ def get_llm(temperature=0):
 
     
     # Try OpenAI first if valid
-    if is_openai_valid:
-        try:
-            from langchain_openai import ChatOpenAI
-            return ChatOpenAI(
-                temperature=temperature,
-                model=os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),
-                base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-            )
-        except Exception as e:
-            print(f"OpenAI initialization failed: {e}")
+    # if is_openai_valid:
+    #     try:
+    #         from langchain_openai import ChatOpenAI
+    #         return ChatOpenAI(
+    #             temperature=temperature,
+    #             model=os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),
+    #             base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+    #         )
+    #     except Exception as e:
+    #         print(f"OpenAI initialization failed: {e}")
     
     # Fallback to Google GenAI if valid
     if is_google_valid:
@@ -95,30 +95,26 @@ def query_db_node(state):
     tomorrow_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     
     sqlite_prompt = PromptTemplate.from_template(
-        """Given an input question, create a syntactically correct SQLite query to run.
-        
+        """You are an AI assistant that generates SQL queries.
+
 CONTEXT:
 - Today's date is: {current_date}
 - Tomorrow's date is: {tomorrow_date}
 
-TABLE NAME:
-- The table name is 'meeting' (singular).
+TABLE INFO:
+Table 'meeting': id, title, description, start_time, end_time, participants
 
-COLUMNS:
-- id, title, description, start_time, end_time, participants
+SCHEMA:
+{table_info}
 
-DATE FILTERING RULES:
-- To find meetings for a specific day, use: WHERE date(start_time) = 'YYYY-MM-DD'
-- For tomorrow's meetings, use: WHERE date(start_time) = '{tomorrow_date}'
-- For today's meetings, use: WHERE date(start_time) = '{current_date}'
+RULES:
+1. Use SQLite syntax.
+2. To filter by date, use: date(start_time) = 'YYYY-MM-DD'
+3. Return ONLY the SQL query. No markdown. No explanation.
 
-Database schema:
-{{table_info}}
+Question: {input}
 
-Question: {{input}}
-
-Return ONLY the SQL query. No markdown, no explanations.
-SQLQuery: """
+SQL Query:"""
     )
     
     try:
@@ -132,21 +128,38 @@ SQLQuery: """
             "current_date": current_date,
             "tomorrow_date": tomorrow_date
         }
-        response = llm.invoke([SystemMessage(content=sqlite_prompt.format(**prompt_input))])
+        formatted_prompt = sqlite_prompt.format(**prompt_input)
+        print(f"🔍 SQL Prompt sent to LLM:\n{formatted_prompt}")
+        
+        response = llm.invoke([HumanMessage(content=formatted_prompt)])
         
         # Extract SQL from response
         sql_query = response.content.strip()
+        print(f"🔍 Generated SQL: {sql_query}")
         
         # Clean up the query
         if "SQLQuery:" in sql_query:
             sql_query = sql_query.split("SQLQuery:")[-1].strip()
-        
+            
         # Remove markdown code blocks if present
         sql_query = sql_query.replace("```sql", "").replace("```", "").strip()
+        
+        # Attempt to extract SQL if there's still conversational text
+        import re
+        # Look for SELECT ... FROM ... (case insensitive, multiline)
+        sql_match = re.search(r'(SELECT\s+.*)', sql_query, re.IGNORECASE | re.DOTALL)
+        if sql_match:
+            sql_query = sql_match.group(1)
+            
         sql_query = sql_query.rstrip(';').strip()
         
+        print(f"🔍 Executing SQL: {sql_query}")
+        
         # Execute the cleaned query
-        result = db.run(sql_query)
+        try:
+            result = db.run(sql_query)
+        except Exception as e:
+            return {"messages": [AIMessage(content=f"❌ SQL Execution Error:\nQuery: `{sql_query}`\nError: {e}")]}
         
         # Format results into natural language
         if result and result != "[]":
@@ -235,7 +248,7 @@ Provide a clear, human-readable response."""
                 format_response = llm.invoke([SystemMessage(content=format_prompt)])
                 response_text = format_response.content
         else:
-            response_text = "No results found."
+            response_text = f"No results found.\n(Debug: Executed `{sql_query}`)"
             
     except Exception as e:
         response_text = f"Error querying database: {e}"
@@ -466,7 +479,8 @@ USER QUESTION: {user_query}
 
 Provide a clear, accurate answer based on the information above."""
         
-        response = llm.invoke([SystemMessage(content=synthesis_prompt)])
+        response = llm.invoke([HumanMessage(content=synthesis_prompt)])
+        print(f"📤 LLM Response content: {response.content[:200]}...")
         return {"messages": [response]}
     
     # No file uploaded - search persistent documents first, then web
@@ -483,6 +497,8 @@ Provide a clear, accurate answer based on the information above."""
                 "top_k": 3,
                 "search_type": "persistent"
             })
+            
+            print(f"📋 Raw search results:\n{search_results}")
             
             # Parse similarity score
             import re
@@ -501,7 +517,8 @@ COMPANY DOCUMENTS:
 USER QUESTION: {user_query}
 
 Provide a clear answer based on the company documents above."""
-                response = llm.invoke([SystemMessage(content=synthesis_prompt)])
+                response = llm.invoke([HumanMessage(content=synthesis_prompt)])
+                print(f"📤 LLM Response content: {response.content[:200]}...")
                 return {"messages": [response]}
         except Exception as e:
             print(f"⚠️ Persistent doc search failed: {e}")
@@ -518,10 +535,13 @@ WEB SEARCH RESULTS:
 USER QUESTION: {user_query}
 
 Provide a clear answer."""
-            response = llm.invoke([SystemMessage(content=synthesis_prompt)])
+            response = llm.invoke([HumanMessage(content=synthesis_prompt)])
+            print(f"📤 LLM Response content: {response.content[:200]}...")
             return {"messages": [response]}
         except Exception as e:
+            print(f"⚠️ Web search exception: {e}")
             response = llm.invoke(state["messages"])
+            print(f"📤 LLM Response content: {response.content[:200]}...")
             return {"messages": [response]}
 
 def meeting_agent_node_implementation(state):
@@ -552,18 +572,28 @@ def meeting_agent_node_implementation(state):
             return {"messages": [AIMessage(content=f"❌ Failed to cancel meetings: {e}")]}
     
     # Parse meeting request using LLM
-    parse_prompt = f"""Extract meeting details from this request: "{user_query}"
+    parse_prompt = f"""You are a JSON extraction assistant. Extract meeting information from the user's request.
 
-Return ONLY a JSON object with these fields:
-- title: str (meeting title)
-- date: str ("tomorrow", "today", or "YYYY-MM-DD")
-- time: str ("14:00", "2pm", etc.) 
-- city: str (default "Chennai" if not mentioned)
-- location: str (specific venue or city)
-- participants: str (comma-separated names)
-- duration_hours: int (default 1)
+User Request: "{user_query}"
 
-Example: {{"title": "Team Meeting", "date": "tomorrow", "time": "14:00", "city": "Chennai", "location": "Conference Room A", "participants": "John, Sarah", "duration_hours": 1}}"""
+Extract these fields and return ONLY a valid JSON object (no code, no explanation):
+- title: meeting title as a string
+- date: "tomorrow", "today", or "YYYY-MM-DD"
+- time: time in 24-hour format like "14:00"
+- city: city name (default: "Chennai")
+- location: specific venue
+- participants: comma-separated participant names
+- duration_hours: meeting duration as a number (default: 1)
+
+Rules:
+1. If this is just a greeting ("hi", "hello"), return: {{}}
+2. If this is NOT a meeting request, return: {{}}
+3. If critical details (date/time) are missing, return: {{}}
+4. Return ONLY the JSON object. No Python code. No markdown.
+
+Valid example: {{"title": "Team Meeting", "date": "tomorrow", "time": "14:00", "city": "Chennai", "location": "Conference Room A", "participants": "John, Sarah", "duration_hours": 1}}
+
+JSON:"""
     
     parse_response = llm.invoke([HumanMessage(content=parse_prompt)])
     print(f"📋 Parsed meeting request: {parse_response.content}")
@@ -571,11 +601,18 @@ Example: {{"title": "Team Meeting", "date": "tomorrow", "time": "14:00", "city":
     # Extract JSON from response
     import json
     import re
-    json_match = re.search(r'\{[^}]+\}', parse_response.content)
+    json_match = re.search(r'\{[\s\S]*?\}', parse_response.content)
     if json_match:
         try:
             meeting_data = json.loads(json_match.group())
             
+            # Handle empty JSON (Greeting or unclear request)
+            if not meeting_data:
+                print("⚠️ Empty JSON received, treating as greeting/general chat")
+                greeting_prompt = f"The user said: '{user_query}'. This was routed to the meeting agent but contains no meeting details. Please respond appropriately (e.g. return a greeting or ask for meeting details)."
+                greeting_response = llm.invoke([HumanMessage(content=greeting_prompt)])
+                return {"messages": [greeting_response]}
+
             # Convert date to actual datetime
             if "tomorrow" in meeting_data.get("date", "").lower():
                 meeting_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
